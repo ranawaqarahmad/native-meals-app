@@ -1,25 +1,31 @@
 import { useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Button,
-} from "react-native";
+import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+
 import IconButton from "../components/IconButton";
 import List from "../components/MealDetail/List";
 import Subtitle from "../components/MealDetail/Subtitle";
 import MealDetails from "../components/MealDetails";
+
 import { MEALS } from "../data/dummy-data";
+import { addFavorite, removeFavorite } from "../store/redux/favorites";
 
 const MealDetailScreen = ({ route, navigation }) => {
   const mealId = route.params.mealId;
 
+  const favoriteMealIds = useSelector((state) => state.favoriteMeals.ids);
+  const dispatch = useDispatch();
+
   const selectedMeal = MEALS.find((meal) => meal.id === mealId);
 
-  const headerButtonPressedHandler = () => {
-    console.log("Pressed!");
+  const mealIsFavorite = favoriteMealIds.includes(mealId);
+
+  const favoriteStatusHanlder = () => {
+    if (mealIsFavorite) {
+      dispatch(removeFavorite({ id: mealId }));
+    } else {
+      dispatch(addFavorite({ id: mealId }));
+    }
   };
 
   useLayoutEffect(() => {
@@ -28,8 +34,8 @@ const MealDetailScreen = ({ route, navigation }) => {
         return (
           <IconButton
             color="white"
-            icon="star"
-            onPress={headerButtonPressedHandler}
+            icon={mealIsFavorite ? "star" : "star-outline"}
+            onPress={favoriteStatusHanlder}
           />
         );
       },
